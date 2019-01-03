@@ -1,0 +1,24 @@
+# core.entity_form_display.node.lead_detail.default.yml
+langcode: en
+status: true
+dependencies:
+    config:
+        - field.field.node.lead_detail.body
+        - node.type.lead_detail
+    module:
+        - text
+        - user
+id: node.lead_detail.default
+targetEntityType: node
+bundle: lead_detail
+mode: default
+content:
+    body:
+        label: hidden
+        type: text_textarea_with_summary
+        weight: 101
+        settings: {  }
+        third_party_settings: {  }
+    links:
+        weight: 100
+hidden: {  }

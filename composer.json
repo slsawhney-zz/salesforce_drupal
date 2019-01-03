@@ -1,0 +1,14 @@
+{
+    "name": "drupal/sf_drupal",
+    "description": "Add API to push data to SalesForce.",
+    "type": "drupal-module",
+    "require": {
+        "drupal/core": ">=8.2.0"
+    },
+    "authors": [
+        {
+            "name": "Shyam Sawhney",
+            "role": "Maintainer"
+        }  
+    ]
+}

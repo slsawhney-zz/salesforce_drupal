@@ -1,0 +1,6 @@
+sf_drupal.adminsettings:
+  title: 'SalesForce Drupal Configuration'
+  route_name: sf_drupal.adminsettings
+  description: 'SalesForce API configuration form Where we have to push data'
+  parent: system.admin_config_system
+  weight: 99

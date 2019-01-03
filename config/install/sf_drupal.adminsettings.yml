@@ -1,0 +1,6 @@
+sf_api_url: 'https://login.salesforce.com/services/oauth2/token'
+sf_consumer_key: ''
+sf_consumer_secret: ''
+sf_username: 'slsahani@curious-bear-32849.com'
+sf_password: ''
+sf_instance_url: 'https://curious-bear-32849-dev-ed.my.salesforce.com'

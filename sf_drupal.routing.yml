@@ -1,0 +1,9 @@
+sf_drupal.adminsettings:
+  path: '/admin/config/sf_drupal/adminsettings'
+  defaults:
+    _form: '\Drupal\sf_drupal\Form\SFConfigurationForm'
+    _title: 'Salesforce API Configuration Form'
+  requirements:
+    _permission: 'access administration pages'
+  options:
+    _admin_route: TRUE

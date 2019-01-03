@@ -1,0 +1,8 @@
+name: Salesforce Drupal Integration
+description: Custom Module to push data to Salesforce API
+package: Custom
+configure: sf_drupal.adminsettings
+dependencies:
+  - drupal:node
+type: module
+core: 8.x

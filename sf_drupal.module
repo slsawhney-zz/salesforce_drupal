@@ -1,0 +1,87 @@
+<?php
+
+/*
+ * @file
+ * Contains sf_drupal.module.
+ */
+
+/**
+ * {@inheritdoc}
+ */
+function sf_drupal_entity_presave(Drupal\Core\Entity\EntityInterface $entity)
+{
+    switch ($entity->bundle()) {
+        // Here we modify only our content type
+        case 'lead_detail':
+            $tokenApiData = getApiToken(getTokenApiUrl());
+            $apiToken = $tokenApiData->access_token;
+
+            if (isset($apiToken)) {
+                $apiResponse = sendDataToSalesForce($apiToken, $entity->get('title')->value, $entity->get('body')->value);
+                if (isset($apiResponse->success)) {
+                    drupal_set_message(t('Data Pushed to Salesforce "Account Object" successfully'), 'status');
+                } else {
+                    drupal_set_message(t('Not able to Push data to Salesforce. Please check Drupal log message for Detail'), 'warning');
+                }
+            } else {
+                $configurationLink = Link::fromTextAndUrl(
+                                            'Configuration',
+                                            \Drupal\Core\Url::fromUri('internal:/admin/config/sf_drupal/adminsettings')
+                                        )->toString();
+                drupal_set_message(t(
+                    '@$configurationLink are not correct. Please verify them.',
+                    array(
+                        '@$configurationLink' => $configurationLink,
+                    )), 'warning');
+            }
+        break;
+    }
+}
+
+function sendDataToSalesForce($apiToken, $name, $body)
+{
+    try {
+        $client = \Drupal::httpClient();
+        $request = $client->post(Drupal::config('sf_drupal.adminsettings')->get('sf_instance_url').'/services/data/v20.0/sobjects/Account', [
+            'headers' => [
+                'Authorization' => 'Bearer '.$apiToken,
+                'Content-Type' => 'application/json',
+            ],
+            'json' => [
+                'Name' => $name,
+                'Description' => trim(preg_replace('/ +/', ' ', preg_replace('/[^A-Za-z0-9 ]/', ' ', urldecode(html_entity_decode(strip_tags($body)))))),
+            ],
+        ]);
+
+        return $response = json_decode($request->getBody());
+    } catch (RequestException $e) {
+        watchdog_exception('sf_drupal', $e->getMessage());
+    }
+}
+
+function getTokenApiUrl()
+{
+    $rawUrl = '%s?grant_type=password&client_id=%s&client_secret=%s&username=%s&password=%s';
+    $tokenUrl = sprintf(
+                    $rawUrl,
+                    Drupal::config('sf_drupal.adminsettings')->get('sf_api_url'),
+                    Drupal::config('sf_drupal.adminsettings')->get('sf_consumer_key'),
+                    Drupal::config('sf_drupal.adminsettings')->get('sf_consumer_secret'),
+                    Drupal::config('sf_drupal.adminsettings')->get('sf_username'),
+                    Drupal::config('sf_drupal.adminsettings')->get('sf_password')
+                );
+
+    return $tokenUrl;
+}
+
+function getApiToken($tokenUrl)
+{
+    try {
+        $client = \Drupal::httpClient();
+        $request = $client->post($tokenUrl);
+
+        return $response = json_decode($request->getBody());
+    } catch (RequestException $e) {
+        watchdog_exception('sf_drupal', $e->getMessage());
+    }
+}
