@@ -1,0 +1,4 @@
+services:
+    sf_drupal.data_push:
+        class: Drupal\sf_drupal\DataPush
+        arguments: ['@http_client']
