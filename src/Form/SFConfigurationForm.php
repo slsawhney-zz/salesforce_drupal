@@ -39,7 +39,7 @@ class SFConfigurationForm extends ConfigFormBase
 
         $form['sf_api_url'] = [
             '#type' => 'textfield',
-            '#title' => $this->t('SalesForce API Logiin/Token URL'),
+            '#title' => $this->t('SalesForce API Login/Token URL'),
             '#description' => $this->t('SalesForce Api URL where we would get token after authentication, like https://login.salesforce.com/services/oauth2/token. Don\'t include slashes'),
             '#default_value' => $configuration->get('sf_api_url'),
             '#required' => true,
@@ -127,9 +127,11 @@ class SFConfigurationForm extends ConfigFormBase
                         $form_state->getValue('sf_password')
                     );
 
-        $response = getApiToken($tokenUrl);
+        $data_push_service = \Drupal::service('sf_drupal.data_push');
+        $response = $data_push_service->getApiToken($tokenUrl);
+
         if (isset($response->access_token)) {
-            $message = 'Configuration are correct. You proceed to save them.';
+            $message = 'Configuration are correct. You may proceed to save them.';
             drupal_set_message(t($message), 'status');
         } else {
             $message = 'Configuration are not correct. Please verify them.';
