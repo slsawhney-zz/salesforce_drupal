@@ -4,6 +4,9 @@ namespace Drupal\sf_drupal;
 
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\RequestException;
 use Drupal\Core\Link;
 
 class DataPush
@@ -66,20 +69,22 @@ class DataPush
     private function pushData($apiToken, $title, $body)
     {
         try {
-            $request = $this->httpClient->post(\Drupal::config('sf_drupal.adminsettings')->get('sf_instance_url').'/services/data/v20.0/sobjects/Account', [
+            $request = $this->httpClient->post(\Drupal::config('sf_drupal.adminsettings')->get('sf_instance_url').'/services/data/v39.0/sobjects/Lead', [
                 'headers' => [
                     'Authorization' => 'Bearer '.$apiToken,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
-                    'Name' => $title,
+                    'Title' => $title,
+                    'LastName' => $title,
+                    'Company' => $title,
                     'Description' => trim(preg_replace('/ +/', ' ', preg_replace('/[^A-Za-z0-9 ]/', ' ', urldecode(html_entity_decode(strip_tags($body)))))),
                 ],
             ]);
 
             return $response = json_decode($request->getBody());
-        } catch (ClientException $e) {
-            watchdog_exception('sf_drupal', $e->getMessage());
+        } catch (ClientException | RequestException | TransferException | BadResponseException $e) {
+            watchdog_exception('sf_drupal', $e);
         }
     }
 
@@ -94,8 +99,8 @@ class DataPush
             $request = $this->httpClient->post($apiTokeUrl);
 
             return $response = json_decode($request->getBody());
-        } catch (ClientException $e) {
-            watchdog_exception('sf_drupal', $e->getMessage());
+        } catch (ClientException | RequestException | TransferException | BadResponseException $e) {
+            watchdog_exception('sf_drupal', $e);
         }
     }
 
@@ -111,7 +116,7 @@ class DataPush
         if (isset($apiToken)) {
             $apiResponse = $this->pushData($apiToken, $title, $body);
             if (isset($apiResponse->success)) {
-                drupal_set_message(t('Data Pushed to Salesforce "Account Object" successfully'), 'status');
+                drupal_set_message(t('Data Pushed to Salesforce "Lead Object" successfully'), 'status');
             } else {
                 drupal_set_message(t('Not able to Push data to Salesforce. Please check Drupal log message for Detail'), 'warning');
             }
